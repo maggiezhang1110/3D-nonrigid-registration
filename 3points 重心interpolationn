@@ -1,0 +1,35 @@
+from sympy import *
+import sympy 
+import time
+import numpy as np
+from sympy import Abs
+tt = time.time()
+#任意图像，任意坐标  比例可知  三点插值
+x1,x2,x3,x4,y1,y2,y3,y4,q11,q12,q13= symbols("an[0][0],an[1][0],an[2][0],an[3][0],an[0][1],an[1][1],an[2][1],an[3][1],bn[0],bn[1],bn[2]")
+h1 = Matrix([(x2-x1)*(y4-y1)-(x4-x1)*(y2-y1)])  #x1,x2,x4
+h2= Matrix([(x4-x1)*(y3-y1)-(x3-x1)*(y4-y1)])   #x1,x3,x4
+h3= Matrix([(x4-x2)*(y3-y2)-(x3-x2)*(y4-y2)])   #x2,x3,x4
+an=np.array([[2.89416591e+00 ,1.28542484e+00],[3.11066324e+00 ,2.89064103e-06],[3.35565844e+00 ,1.98648645e+00],[3,1]])
+bn=np.array([62,130,130])
+s1=0.5*h1.det()#.subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
+s2=0.5*h2.det()#.subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
+s3=0.5*h3.det()#.subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
+s1=Abs(s1)
+s2=Abs(s2)
+s3=Abs(s3)
+s=s2+s1+s3
+p=s1*q13/s+s2*q12/s+s3*q11/s
+#c1=diff(p, y3)
+c= p#.subs(q13, bn[2]).subs(q12,bn[1]).subs(q11,bn[0]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
+c1=diff(p,x1)#.subs(q13, bn[2]).subs(q12,bn[1]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
+c2=diff(p,y1)#.subs(q13, bn[2]).subs(q12,bn[1]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
+c3=diff(p,x2)#.subs(q13, bn[2]).subs(q12,bn[1]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
+c4=diff(p,y2)#.subs(q13, bn[2]).subs(q12,bn[1]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
+c5=diff(p,x3)#.subs(q13, bn[2]).subs(q12,bn[1]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
+c6=diff(p,y3)#.subs(q13, bn[2]).subs(q12,bn[1]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
+
+#print (c1,c2,c3,c4,c5,c6)
+print c1
+print('Time used: {} sec'.format(time.time()-tt))
+
+

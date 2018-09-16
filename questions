@@ -1,0 +1,23 @@
+
+There are some questions  I want to clarify….
+
+1. After image interpolation, Gaussian blur is necessary or not?
+取消卷积，直接乘
+
+2. Initial affect results a lot. It is very easy to be stuck in local optimum.    Result
+
+3. How to assess the outcome of 3d registration 
+对比2维切片，求均值， 综合比较
+
+4. Check Jacobian again     own task
+从头到尾
+
+5. Read more paper         own task
+为什么不用geo方法
+
+6. Get to know the original T AND compare it
+找ground truth
+
+7.  是否是算法的原因 还是 图像的形状 对比ssd 参数原因还是算法原因
+uniform registration
+    

@@ -4,25 +4,22 @@ import numpy as np
 tt = time.time()
 #任意图像，任意坐标 求导 
 x,y,q11,q12,q21,x1,x2,x3,y1,y2,y3 = symbols("x,y,bn[0],bn[1],bn[2],an[0][0],an[1][0],an[2][0],an[0][1],an[1][1],an[2][1]")
-xa=(y-y1)/(y2-y1)*(x2-x1)+x1  #x1,x2
-xaa=(y-y3)/(y1-y3)*(x1-x3)+x3 #x3,x1
-p1=(y2-y)*q11/(y2-y1)+(y-y1)*q12/(y2-y1) 
-p2=(x1-xaa)*q21/(x1-x3)+(xaa-x3)*q22/(x1-x3)
-p=(xa-x)*p2/(xa-xaa)+(x-xaa)*p1/(xa-xaa)
-#p=(bn[0]*(an[1][1] - y)/(-an[0][1] + an[1][1]) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1]))*(-an[2][0] + x - (-an[2][0] + an[3][0])*(-an[2][1] + y)/(-an[2][1] + an[3][1]))/(an[0][0] - an[2][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1]) - (-an[2][0] + an[3][0])*(-an[2][1] + y)/(-an[2][1] + an[3][1])) + (bn[2]*(-an[2][0] + an[3][0] - (-an[2][0] + an[3][0])*(-an[2][1] + y)/(-an[2][1] + an[3][1]))/(-an[2][0] + an[3][0]) + bn[3]*(-an[2][1] + y)/(-an[2][1] + an[3][1]))*(an[0][0] - x + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1]))/(an[0][0] - an[2][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1]) - (-an[2][0] + an[3][0])*(-an[2][1] + y)/(-an[2][1] + an[3][1]))
-an=np.array([[     0.       ,       0.        ],
- [   -81.05776137 ,-31943.8314953 ],
- [ -2517.29288491 ,  2427.25367657]])
-bn=np.array([30,40,50])
-#an=np.array([[0.9,1.1],[0.8,1.12],[0.8, 1.2],[0.85, 1.3]])
-a10=diff(p, x1).subs(x, 1).subs(y,1).subs(q11,bn[0]).subs(q12, bn[1]).subs(q21,bn[2]).subs(q22,bn[3]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
-a20=diff(p, y1).subs(x, 1).subs(y,1).subs(q11,bn[0]).subs(q12, bn[1]).subs(q21,bn[2]).subs(q22,bn[3]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
-a30=diff(p, x2).subs(x, 0).subs(y,1).subs(q11,bn[0]).subs(q12, bn[1]).subs(q21,bn[2]).subs(q22,bn[3]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
-a40=diff(p, y2).subs(x, 0).subs(y,1).subs(q11,bn[0]).subs(q12, bn[1]).subs(q21,bn[2]).subs(q22,bn[3]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
-a11=diff(p, x3).subs(x, 1).subs(y,0).subs(q11,bn[0]).subs(q12, bn[1]).subs(q21,bn[2]).subs(q22,bn[3]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
-a21=diff(p, y3).subs(x, 1).subs(y,0).subs(q11,bn[0]).subs(q12, bn[1]).subs(q21,bn[2]).subs(q22,bn[3]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
-a31=diff(p, x4).subs(x, 1).subs(y,1).subs(q11,bn[0]).subs(q12, bn[1]).subs(q21,bn[2]).subs(q22,bn[3]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
-a41=diff(p, y4).subs(x, 1).subs(y,1).subs(q11,bn[0]).subs(q12, bn[1]).subs(q21,bn[2]).subs(q22,bn[3]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(x4, an[3][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1]).subs(y4,an[3][1])
-ktt=np.array([[[[0, 0],[0,0]],[[0,a30],[0,a40]]],[[[a11,0],[a21,0]],[[ a31,a31],[a41,a41]]]])
-print ktt
+xa=(y-y1)/(y2+1.0e-9-y1)*(x2-x1)+x1 #x1,x2
+xaa=((y-y2-1.0e-9)/(y3-y2-1.0e-9)*(x3-x2)+x2) #x3,x2
+p1=(y2+1.0e-9-y)*q11/(y2+1.0e-9-y1)+(y-y1)*q12/(y2+1.0e-9-y1) #x1,x2
+p2=(y3-y)*q12/(y3-y2-1.0e-9)+(y-y2-1.0e-9)*q21/(y3-y2-1.0e-9) #x3,x2
+p=(xa-x-1.0e-9)*p2/(xa-xaa)+(x+1.0e-9-xaa)*p1/(xa-xaa)
+bn=np.array([135., 86. , 93.])
+an=np.array([[ 8.72595896  ,172],
+ [-1.27404104e-01 , 173],
+ [ 4.70605785,  173]])
+c=diff(p,y3)#.subs(x, 0).subs(y,173).subs(q11,bn[0]).subs(q12, bn[1]).subs(q21,bn[2]).subs(x1, an[0][0]).subs(x2,an[1][0]).subs(x3,an[2][0]).subs(y1, an[0][1]).subs(y2,an[1][1]).subs(y3,an[2][1])
+print c
+
 print('Time used: {} sec'.format(time.time()-tt))
+
+
+
+
+
+

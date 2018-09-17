@@ -9,11 +9,20 @@ try without jacobian now
 4. Check Jacobian again     own task
 从头到尾
 
-5. Read more paper         own task
-为什么不用geo方法
-extract points
-someone uses hybrid algorithm,using part of image
-(how to extract feature points)
+5. Read more paper        own task
+为什么不用geo方法  
+
+5.1.intensity-based z.B:ICP(and many improved versions),PASHA
+
+5.2.geo-based(feature-based) 需要extract points 坐标的距离 (surface, feature) 
+need initialization: prior knowledge, marker, mannual initialization(GUI)
+after registration, validation is necessary.
+
+5.3.gradient-based 
+
+5.4. hybrid algorithm, geo+intensity (how to extract feature points)
+(projection, back-projection, reconstruction......)
+For difficult, majority of published registration methods employed a rigid transformation(3 rotations, 3 translations)
 
 6. Get to know the original T AND compare it
 找ground truth
@@ -22,8 +31,6 @@ someone uses hybrid algorithm,using part of image
 7.  是否是算法的原因 还是 图像的形状 对比ssd 参数原因还是算法原因
 uniform registration
 from results, we can see the uniform deformation is caused by algorithm. 
-
-
 
     
 2. Initial affect results a lot. It is very easy to be stuck in local optimum.    Result

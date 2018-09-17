@@ -27,16 +27,24 @@ Result:
 为什么不用geo方法  
 ##### 4.1.1intensity-based 
 z.B:ICP(and many improved versions),PASHA
+<br>
+Initial affect results a lot. It is very easy to be stuck in local optimum. 
 ##### 4.1.2.geo-based(feature-based) 需要extract points 坐标的距离 (surface, feature) 
+landmark based
+<br>
 need initialization: prior knowledge, marker, mannual initialization(GUI)
+<br>
 after registration, validation is necessary.
 ##### 4.1.3.gradient-based 
+powell or best neighbour....
 ##### 4.1.4. hybrid algorithm
 for instance, geo+intensity (how to extract feature points)
 ##### 4.2. some conclusion extracted from papers
 (projection, back-projection, reconstruction......)
+<br>
 For difficult, majority of published registration methods employed a rigid transformation(3 rotations, 3 translations)
-Initial affect results a lot. It is very easy to be stuck in local optimum. 
+<br>
+down sampling or blur may suppress some image features, increasing the risk of trapping in local minimum
 ##### 5.  是否是算法的原因 还是 图像的形状 对比ssd 参数原因还是算法原因
 uniform registration
 from results, we can see the uniform deformation is caused by algorithm. 

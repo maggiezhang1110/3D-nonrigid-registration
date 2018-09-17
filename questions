@@ -1,6 +1,6 @@
 
-There are some questions  I want to clarify….
-
+#There are some questions  I want to clarify….
+##unsolved
 1. After image interpolation, Gaussian blur is necessary or not?
 取消卷积，直接乘
 no identical difference 
@@ -9,6 +9,7 @@ try without jacobian now
 4. Check Jacobian again     own task
 从头到尾
 
+##finished
 5. Read more paper        own task
 为什么不用geo方法  
 
@@ -27,7 +28,7 @@ For difficult, majority of published registration methods employed a rigid trans
 6. Get to know the original T AND compare it
 找ground truth
 
-
+##solved
 7.  是否是算法的原因 还是 图像的形状 对比ssd 参数原因还是算法原因
 uniform registration
 from results, we can see the uniform deformation is caused by algorithm. 

@@ -6,12 +6,19 @@ should not (however, may exist zero)
 找ground truth, translation and rotation
 ##### 2. C T 2nd step 卷积
 A：取消卷积，直接乘(with jaco)
-Result: no identical difference 
+<br>
+Result: no identical difference
+<br>
 A:try without jacobian now
+<br>
 Result:
+<br>
 A: try 5*5 Gaussian kernel 
+<br>
 Result:
+<br>
 A: try .. indentical kernel 
+<br>
 Result:
 ##### 3. Check Jacobian again   own task
 从头到尾 pay attention to nan 

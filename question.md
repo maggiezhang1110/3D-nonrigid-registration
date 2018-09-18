@@ -14,11 +14,11 @@ how to asses quality: substraction of two images, the matching error of translat
 ##### 1. C T 2nd step 卷积
 A：取消卷积，直接乘(with jaco)
 <br>
-Result: no identical difference
+Result: no obvious difference
 <br>
 A:取消卷积，直接乘 without jacobian 
 <br>
-Result: no identical difference 
+Result: no significant difference 
 <br>
 A: try 5*5 Gaussian kernel 
 <br>
@@ -27,7 +27,7 @@ Result:
 A: try .. indentical kernel 
 <br>
 Result:
-##### 4. Read more paper        own task
+##### 4. Read more paper, new methods, how to improve       own task
 为什么不用geo方法  
 ##### 4.1.1intensity-based 
 z.B:PASHA

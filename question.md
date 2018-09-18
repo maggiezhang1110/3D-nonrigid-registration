@@ -58,6 +58,10 @@ For difficult, majority of published registration methods employed a rigid trans
 The four most striking ones are the dominance of intensity-based approaches –taking into account the full contents of the images to be registered –over segmentation-based and landmark-based approaches
 <br>
 down sampling or blur may suppress some image features, increasing the risk of trapping in local minimum
+Feature based for speed 
+RHDM 
+Salient region feature detector 
+Reject outlier 
 
 ##### 5.  是否是算法的原因 还是 图像的形状 对比ssd 参数原因还是算法原因
 uniform registration

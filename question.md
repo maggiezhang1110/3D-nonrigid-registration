@@ -52,7 +52,6 @@ still feature. part of image
 <br>
 For difficult, majority of published registration methods employed a rigid transformation(3 rotations, 3 translation)
 <br>
-<br>
 (ii) the shift from surface-based registration to intensity- based (“voxel-property-based”) registration, which has certainly increased, with intensity-based techniques now forming the basis of the vast majority of registration approaches;
 <br>
 The four most striking ones are the dominance of intensity-based approaches –taking into account the full contents of the images to be registered –over segmentation-based and landmark-based approaches

@@ -22,14 +22,21 @@ ori=pyma(gr,3)
 tfi=pyma(gstr,3)
 print np.sum(np.abs(-tfi+ori))/1015
 
-T = firs_t(29,35)
+C = firs_t(29,35)
 np.random.seed(14)
 x0=np.random.rand(29,35,2,2)
-x0=xo.flatten()
+np.random.seed(1)
+T0=np.random.rand(29,35,2,2)
+x0=x0.flatten()
 kernel =  np.array([[0.0947416,0.118318,0.094716],[0.118318,0.147761,0.118318],[0.0947416,0.118318,0.094716]])
 e=np.array([[1,0],[0,0]])
 kernel_conv = np.array([[kernel[0][0]*e,kernel[0][1]*e,kernel[0][2]*e],[kernel[1][0]*e,kernel[1][1]*e,kernel[1][2]*e],
                         [kernel[2][0]*e,kernel[2][1]*e,kernel[2][2]*e]])
 def f(x):
-    C=np.reshape(x,(29,35,2,2))
+    T=np.reshape(x,(29,35,2,2))
+    return np.sum(np.square(C-T)）+np.sum(np.square(T-T0)）+np.sum(np.square(T))
+    T0=T
     
+    
+res = minimize(f, x0,method='L-BFGS-B',options={'disp':True})
+print f(res.x) #cco value

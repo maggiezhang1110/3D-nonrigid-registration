@@ -1,0 +1,35 @@
+from scipy.spatial import Delaunay
+from sympy import *
+import time
+import sympy
+import scipy.interpolate
+import scipy.signal
+import time
+import cv2
+from skimage.transform import pyramid_gaussian
+import numpy as np
+from scipy.optimize import minimize
+import matplotlib.pyplot as plt
+
+def firs_t(b,c):
+    tt = np.zeros([b*c,2,2])
+    mat =np.arange(b*c)  #d equals to pixel number
+    tt[mat]= np.eye(2)
+    t0 = tt.flatten()
+    tt = np.reshape(t0, (b,c,2,2))
+    return tt
+ori=pyma(gr,3)
+tfi=pyma(gstr,3)
+print np.sum(np.abs(-tfi+ori))/1015
+
+T = firs_t(29,35)
+np.random.seed(14)
+x0=np.random.rand(29,35,2,2)
+x0=xo.flatten()
+kernel =  np.array([[0.0947416,0.118318,0.094716],[0.118318,0.147761,0.118318],[0.0947416,0.118318,0.094716]])
+e=np.array([[1,0],[0,0]])
+kernel_conv = np.array([[kernel[0][0]*e,kernel[0][1]*e,kernel[0][2]*e],[kernel[1][0]*e,kernel[1][1]*e,kernel[1][2]*e],
+                        [kernel[2][0]*e,kernel[2][1]*e,kernel[2][2]*e]])
+def f(x):
+    C=np.reshape(x,(29,35,2,2))
+    

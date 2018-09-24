@@ -1,0 +1,239 @@
+from scipy.spatial import Delaunay
+from sympy import *
+import time
+import sympy
+import scipy.interpolate
+import scipy.signal
+import time
+import cv2
+from skimage.transform import pyramid_gaussian
+import numpy as np
+from scipy.optimize import minimize
+import matplotlib.pyplot as plt
+im = np.loadtxt('/Users/maggiezhang/Desktop/para/new.txt')
+gr=np.reshape(im,(225,280))
+gstr=np.loadtxt('/Users/maggiezhang/Desktop/para/tfim.txt')
+gstr=np.reshape(gstr,(225,280))
+gr=gr[::-1]
+gstr=gstr[::-1]
+# generate Gaussian pyramid for origin
+def pyma(wa,ti): #pymaid,times layers
+    for tim in range(ti):
+        wa=scipy.ndimage.filters.gaussian_filter1d(wa,sigma=2) #gaussian windo
+        sl= wa[:,::2]
+        wa=sl[::2,:]
+    return wa
+def pre(b,c,d):
+    #tfi=tfima
+    #ori=orima
+    firstmean= scipy.ndimage.filters.gaussian_filter1d(tfi, sigma=d)
+    firstvariance = scipy.ndimage.filters.gaussian_filter1d(np.square(tfi), sigma=d) - np.square(firstmean)
+    fv2 = firstvariance.clip(0)
+    fv = np.sqrt(fv2)
+    data=[]
+    gn=[]
+    for xkk in range(b):
+        for ykk in range(c):
+            ank=[xkk,ykk]
+            fwn = ori[xkk][ykk]
+            data.append(fwn)
+            gn.append(ank)
+    return firstmean,firstvariance,fv,data,gn
+
+def f(x,b,c,d,va):
+    #tfi=tfima
+    #ori=orima
+    C = np.reshape(x, (b*c,2,2))
+    Jtransformed = np.zeros(b*c)
+    points =np.zeros([b*c,2])
+    point=ya
+    value=datan
+    for xk in range(b*c):
+        points[xk]= np.dot(C[xk],ya[xk])     
+    pt=[]
+    tri = Delaunay(points)
+    sta=tri.simplices
+    pp=points[sta]
+    number=tri.find_simplex(point)
+    ans=sta[number]  #index
+    pns=pp[number]    #points
+    susu=np.zeros([b*c,6])
+    pta=np.zeros([b*c,2,2])
+    for ka in range(b*c):#b*c
+        if number[ka] == -1:
+            Jtransformed[ka]=0
+        else:
+            an=pns[ka]
+            bn=np.array([value[ans[ka][0]],value[ans[ka][1]],value[ans[ka][2]]])#index
+            xx=point[ka][0]
+            yy=point[ka][1]
+            Jtransformed[ka]=(bn[0]*(an[1][1] - yy)/(-an[0][1] + an[1][1]) + bn[1]*(-an[0][1] + yy)/(-an[0][1] + an[1][1]))*(-an[1][0] + xx - (-an[1][0] + an[2][0])*(-an[1][1] + yy)/(-an[1][1] + an[2][1]))/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + yy)/(-an[0][1] + an[1][1]) - (-an[1][0] + an[2][0])*(-an[1][1] + yy)/(-an[1][1] + an[2][1]) + 1.0e-9) + (bn[1]*(an[2][1] - yy)/(-an[1][1] + an[2][1]) + bn[2]*(-an[1][1] + yy)/(-an[1][1] + an[2][1]))*(an[0][0] - xx + (-an[0][0] + an[1][0])*(-an[0][1] + yy)/(-an[0][1] + an[1][1]) + 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + yy)/(-an[0][1] + an[1][1]) - (-an[1][0] + an[2][0])*(-an[1][1] + yy)/(-an[1][1] + an[2][1]) + 1.0e-9)
+    Jtransformed1 =np.reshape(Jtransformed, (b,c))
+    Jtransformed = Jtransformed.clip(0,255)
+    transformedmean = scipy.ndimage.filters.gaussian_filter1d(Jtransformed1, sigma=d)
+    transformedvariance = scipy.ndimage.filters.gaussian_filter1d(np.square(Jtransformed1), sigma=d) - np.square(transformedmean)
+    tv2 = transformedvariance.clip(0)
+    tv = np.sqrt(tv2)
+    correlation =  scipy.ndimage.filters.gaussian_filter1d(np.multiply(tfi,Jtransformed1),sigma=d) - np.multiply(firstmean,transformedmean)
+    CCO = (np.abs(correlation)+ 1.0e-9) / (np.multiply(fv,tv)+ 1.0e-9)
+    return (-1)*np.sum(CCO)+ va* np.square(np.linalg.norm(C - T))
+
+def jaco(x,b,c,d,va):
+    #tfi=tfima
+    #ori=orima
+    C = np.reshape(x, (b*c,2,2))
+    Jtransformed = np.zeros(b*c)
+    points =np.zeros([b*c,2])
+    point=ya
+    value=datan
+    for xk in range(b*c):
+        points[xk]= np.dot(C[xk],ya[xk])     
+    pt=[]
+    tri = Delaunay(points)
+    sta=tri.simplices
+    pp=points[sta]
+    number=tri.find_simplex(point)
+    ans=sta[number]  #index
+    pns=pp[number]    #points
+    susu=np.zeros([b*c,6])
+    pta=np.zeros([b*c,2,2])
+    for ka in range(b*c):#b*c
+        if number[ka] == -1:
+            Jtransformed[ka]=0
+            pta[ka]=np.array([[0,0],[0,0]])
+        else:
+            an=pns[ka]
+            bn=np.array([value[ans[ka][0]],value[ans[ka][1]],value[ans[ka][2]]])#index
+            x=point[ka][0]
+            y=point[ka][1]
+            Jtransformed[ka]=(bn[0]*(an[1][1] - y)/(-an[0][1] + an[1][1]) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1]))*(-an[1][0] + x - (-an[1][0] + an[2][0])*(-an[1][1] + y)/(-an[1][1] + an[2][1]))/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1]) - (-an[1][0] + an[2][0])*(-an[1][1] + y)/(-an[1][1] + an[2][1]) + 1.0e-9) + (bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1]) + bn[2]*(-an[1][1] + y)/(-an[1][1] + an[2][1]))*(an[0][0] - x + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1]) + 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1]) - (-an[1][0] + an[2][0])*(-an[1][1] + y)/(-an[1][1] + an[2][1]) + 1.0e-9)
+            if ans[ka][0] ==ka:
+                susu[ka][0]=(-(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) + 1)*(bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9) + bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9)) + ((-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - 1)*(bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9))*(-an[1][0] + x - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9) + 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2 + ((-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - 1)*(bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9) + bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))*(an[0][0] - x + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2
+                susu[ka][1]=(bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9))*(-(-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9)**2 + (-an[0][0] + an[1][0])/(-an[0][1] + an[1][1] + 1.0e-9))*(-an[1][0] + x - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9) + 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2 + (bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9) + bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))*(-(-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9)**2 + (-an[0][0] + an[1][0])/(-an[0][1] + an[1][1] + 1.0e-9))*(an[0][0] - x + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2 + (bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9) + bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))*((-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9)**2 - (-an[0][0] + an[1][0])/(-an[0][1] + an[1][1] + 1.0e-9))/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9)) + (bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9)**2 + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9)**2 - bn[1]/(-an[0][1] + an[1][1] + 1.0e-9))*(-an[1][0] + x - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9) + 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))
+                pta[ka]= np.array([[susu[ka][0]*point[ans[ka][0]][0],susu[ka][0]*point[ans[ka][0]][1]],[susu[ka][1]*point[ans[ka][0]][0],susu[ka][1]*point[ans[ka][0]][1]]])
+            elif ans[ka][1] ==ka:
+                susu[ka][2]=(-1 + (-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))*(bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9))/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9)) + (-an[0][1] + y)*(bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9) + bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))/((-an[0][1] + an[1][1] + 1.0e-9)*(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))) + (bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9))*(-(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) + 1 - (-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))*(-an[1][0] + x - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9) + 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2 + (bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9) + bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))*(-(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) + 1 - (-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))*(an[0][0] - x + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2
+                susu[ka][3]=-(-an[0][0] + an[1][0])*(-an[0][1] + y)*(bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9) + bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))/((-an[0][1] + an[1][1] + 1.0e-9)**2*(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))) + ((-an[1][0] + an[2][0])/(-an[1][1] + an[2][1] - 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9)**2)*(bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9))/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9)) + (bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9))*((-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9)**2 - (-an[1][0] + an[2][0])/(-an[1][1] + an[2][1] - 1.0e-9) + (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9)**2)*(-an[1][0] + x - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9) + 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2 + (bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9) + bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))*((-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9)**2 - (-an[1][0] + an[2][0])/(-an[1][1] + an[2][1] - 1.0e-9) + (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9)**2)*(an[0][0] - x + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2 + (bn[0]/(-an[0][1] + an[1][1] + 1.0e-9) - bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9)**2 - bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9)**2)*(-an[1][0] + x - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9) + 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9)) + (bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9)**2 - bn[2]/(-an[1][1] + an[2][1] - 1.0e-9) + bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9)**2)*(an[0][0] - x + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))
+                pta[ka]= np.array([[susu[ka][2]*point[ans[ka][1]][0],susu[ka][2]*point[ans[ka][1]][1]],[susu[ka][3]*point[ans[ka][1]][0],susu[ka][3]*point[ans[ka][1]][1]]])
+            elif ans[ka][2] ==ka:
+                susu[ka][4]=-(bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9))*(-an[1][1] + y - 1.0e-9)/((-an[1][1] + an[2][1] - 1.0e-9)*(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))) + (bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9))*(-an[1][1] + y - 1.0e-9)*(-an[1][0] + x - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9) + 1.0e-9)/((-an[1][1] + an[2][1] - 1.0e-9)*(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2) + (bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9) + bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))*(-an[1][1] + y - 1.0e-9)*(an[0][0] - x + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - 1.0e-9)/((-an[1][1] + an[2][1] - 1.0e-9)*(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2)
+                susu[ka][5]=(-an[1][0] + an[2][0])*(bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9))*(-an[1][1] + y - 1.0e-9)/((-an[1][1] + an[2][1] - 1.0e-9)**2*(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))) - (-an[1][0] + an[2][0])*(bn[0]*(an[1][1] - y + 1.0e-9)/(-an[0][1] + an[1][1] + 1.0e-9) + bn[1]*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9))*(-an[1][1] + y - 1.0e-9)*(-an[1][0] + x - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9) + 1.0e-9)/((-an[1][1] + an[2][1] - 1.0e-9)**2*(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2) - (-an[1][0] + an[2][0])*(bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9) + bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))*(-an[1][1] + y - 1.0e-9)*(an[0][0] - x + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - 1.0e-9)/((-an[1][1] + an[2][1] - 1.0e-9)**2*(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))**2) + (-bn[1]*(an[2][1] - y)/(-an[1][1] + an[2][1] - 1.0e-9)**2 + bn[1]/(-an[1][1] + an[2][1] - 1.0e-9) - bn[2]*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9)**2)*(an[0][0] - x + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + y)/(-an[0][1] + an[1][1] + 1.0e-9) - (-an[1][0] + an[2][0])*(-an[1][1] + y - 1.0e-9)/(-an[1][1] + an[2][1] - 1.0e-9))
+                pta[ka]= np.array([[susu[ka][4]*point[ans[ka][2]][0],susu[ka][4]*point[ans[ka][2]][1]],[susu[ka][5]*point[ans[ka][2]][0],susu[ka][5]*point[ans[ka][2]][1]]])
+    Jtransformed = Jtransformed.clip(0,255)
+    pkk=np.reshape(pta,(b,c,2,2))
+    kp=np.zeros([b,c,2,2])
+    Jtransformed1 = np.reshape(Jtransformed, (b,c))
+    transformedmean = scipy.ndimage.filters.gaussian_filter1d(Jtransformed1, sigma=d)
+    transformedvariance = scipy.ndimage.filters.gaussian_filter1d(np.square(Jtransformed1), sigma=d) - np.square(transformedmean)
+    tv2 = transformedvariance.clip(0)
+    tv = np.sqrt(tv2)
+    correlation =  scipy.ndimage.filters.gaussian_filter1d(np.multiply(tfi,Jtransformed1),sigma=d) - np.multiply(firstmean,transformedmean)
+    gs=ori*scipy.ndimage.filters.gaussian_filter1d((1+ 1.0e-9)/(fv*tv+ 1.0e-9),sigma=d)-Jtransformed1*scipy.ndimage.filters.gaussian_filter1d((correlation+ 1.0e-9)/(fv*tv**3+ 1.0e-9),sigma=d)+scipy.ndimage.filters.gaussian_filter1d((correlation*transformedmean+ 1.0e-9)/(fv*tv**3+ 1.0e-9)-(firstmean+ 1.0e-9)/(fv*tv+ 1.0e-9),sigma=d)
+    for da in range(b):
+        for db in range(c):
+            kp[da][db]=pkk[da][db]*gs[da][db]  
+    kp=np.reshape(2*va*(C - T),(b,c,2,2))-kp
+    return kp.flatten()
+def new_tc(aa,bb,cc,dd,T0):
+    Q = np.zeros([aa,bb,2,2])
+    C = np.zeros([aa,bb,2,2])
+    for k in range(cc):
+        for m in range(dd):
+            Q[k][2*m]= T0[k][m]
+            if 2*m+1 < bb:
+                Q[k][2*m+1]= T0[k][m]
+    for r in range(cc):
+        C[2*r]= Q[r]
+        if 2*r+1 < aa:
+            C[2*r+1]=Q[r]
+    tt = np.reshape(C, (aa*bb,2,2))
+    return tt
+
+def pstu(x,b,c,v):
+    C = np.reshape(x, (b*c,2,2))
+    Jtransformed = np.zeros(b*c)
+    points =np.zeros([b*c,2])
+    point=ya
+    value=datan
+    for xk in range(b*c):
+        points[xk]= np.dot(C[xk],ya[xk])     
+    pt=[]
+    tri = Delaunay(points)
+    sta=tri.simplices
+    pp=points[sta]
+    number=tri.find_simplex(point)
+    ans=sta[number]  #index
+    pns=pp[number]    #points
+    susu=np.zeros([b*c,6])
+    pta=np.zeros([b*c,2,2])
+    for ka in range(b*c):#b*c
+        if number[ka] == -1:
+            Jtransformed[ka]=0
+        else:
+            an=pns[ka]
+            bn=np.array([value[ans[ka][0]],value[ans[ka][1]],value[ans[ka][2]]])#index
+            xx=point[ka][0]
+            yy=point[ka][1]
+            Jtransformed[ka]=(bn[0]*(an[1][1] - yy)/(-an[0][1] + an[1][1]) + bn[1]*(-an[0][1] + yy)/(-an[0][1] + an[1][1]))*(-an[1][0] + xx - (-an[1][0] + an[2][0])*(-an[1][1] + yy)/(-an[1][1] + an[2][1]))/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + yy)/(-an[0][1] + an[1][1]) - (-an[1][0] + an[2][0])*(-an[1][1] + yy)/(-an[1][1] + an[2][1]) + 1.0e-9) + (bn[1]*(an[2][1] - yy)/(-an[1][1] + an[2][1]) + bn[2]*(-an[1][1] + yy)/(-an[1][1] + an[2][1]))*(an[0][0] - xx + (-an[0][0] + an[1][0])*(-an[0][1] + yy)/(-an[0][1] + an[1][1]) + 1.0e-9)/(an[0][0] - an[1][0] + (-an[0][0] + an[1][0])*(-an[0][1] + yy)/(-an[0][1] + an[1][1]) - (-an[1][0] + an[2][0])*(-an[1][1] + yy)/(-an[1][1] + an[2][1]) + 1.0e-9)
+    return np.reshape(Jtransformed, (b,c))
+    
+def firs_t(b,c):
+    tt = np.zeros([b*c,2,2])
+    mat =np.arange(b*c)  #d equals to pixel number
+    tt[mat]= np.eye(2)
+    t0 = tt.flatten()
+    tt = np.reshape(t0, (b*c,2,2))
+    return tt
+ori=pyma(gr,3)
+tfi=pyma(gstr,3)
+print np.sum(np.abs(-tfi+ori))/1015
+
+T = firs_t(29,35)
+np.random.seed(1)
+re=np.random.rand(29,35,2,2)
+x0 = re.flatten()
+datanew=pre(29,35,5)
+datan=datanew[3]
+ya=datanew[4]
+firstmean=datanew[0]
+firstvariance=datanew[1]
+fv=datanew[2]
+
+kernel =  np.array([[0.0947416,0.118318,0.094716],[0.118318,0.147761,0.118318],[0.0947416,0.118318,0.094716]])
+e=np.array([[1,0],[0,0]])
+kernel_conv = np.array([[kernel[0][0]*e,kernel[0][1]*e,kernel[0][2]*e],[kernel[1][0]*e,kernel[1][1]*e,kernel[1][2]*e],
+                        [kernel[2][0]*e,kernel[2][1]*e,kernel[2][2]*e]])
+tt = time.time()
+fp=6
+res = minimize(f, x0, args=(29,35,5,fp),jac=jaco,method='L-BFGS-B',options={'disp':True})
+print f(res.x,29,35,5,0) #cco value
+print np.sum(np.abs(-tfi+pstu(res.x,29,35,0)))/1015
+C = np.reshape(res.x, (29,35,2,2))
+T = np.reshape(T, (29,35,2,2))
+T = 0.4*C + 0.6*T + 0.6*(C-T) #w=0.25
+T = np.reshape(T, (1015,2,2))
+x0= res.x
+fp=0.1
+res = minimize(f, x0, args=(29,35,5,fp),method='L-BFGS-B',options={'disp':True})
+print f(res.x,29,35,5,0) #cco value
+print np.sum(np.abs(-tfi+pstu(res.x,29,35,0)))/1015
+C = np.reshape(res.x, (29,35,2,2))
+T = np.reshape(T, (29,35,2,2))
+T = 0.4*C + 0.6*T + 0.6*(C-T) #w=0.25
+T = np.reshape(T, (1015,2,2))
+x0= res.x
+res = minimize(f, x0, args=(29,35,5,fp),method='L-BFGS-B',options={'disp':True})
+print f(res.x,29,35,5,0) #cco value
+print np.sum(np.abs(-tfi+pstu(res.x,29,35,0)))/1015
+C = np.reshape(res.x, (29,35,2,2))
+T = np.reshape(T, (29,35,2,2))
+T = 0.4*C + 0.6*T + 0.6*(C-T) #w=0.25
+T = np.reshape(T, (1015,2,2))
+x0= res.x
+
+print('Time used: {} sec'.format(time.time()-tt))
+
+def write_array_to_file(file_name, array):
+    np.savetxt(file_name, array,delimiter = ' ')
+cc=(res.x).flatten()
+write_array_to_file('/Users/maggiezhang/Desktop/para/916cip.txt', cc)

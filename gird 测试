@@ -1,0 +1,14 @@
+import matplotlib.pyplot as plt # For ploting
+import cv2
+import scipy.interpolate
+import numpy as np
+from PIL import Image 
+fig = plt.figure()
+ax = fig.gca()
+ax.set_xticks(np.arange(0,1.5,0.05))
+ax.set_yticks(np.arange(0,1,0.05))
+plt.grid()
+plt.savefig("p.png")
+plt.show()
+
+
